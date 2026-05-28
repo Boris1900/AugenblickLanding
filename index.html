@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Augenblick – Dein sanfter Meditations-Timer</title>
+<meta name="description" content="Ein einfacher Meditations-Timer mit Klangschale. Kein Abo, keine Werbung, keine Datensammlung. Für Android und iPhone.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #f4e8d0;
+    background: #14110d;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Warmer Dunkel-Hintergrund mit sanftem Glow */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 10%, rgba(212,168,83,0.10) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(180,120,50,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  main, header, footer { position: relative; z-index: 1; }
+
+  h1, h2, h3, .serif {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    padding: 60px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .logo-mark {
+    width: clamp(220px, 45vw, 300px);
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 40px rgba(212,168,83,0.3));
+    margin-bottom: 32px;
+  }
+  .hero h1 {
+    font-size: clamp(40px, 8vw, 64px);
+    color: #f4e8d0;
+    margin-bottom: 12px;
+    letter-spacing: 0.03em;
+  }
+  .hero-tag {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(20px, 3.5vw, 26px);
+    color: rgba(244,232,208,0.75);
+    margin-bottom: 48px;
+    max-width: 480px;
+  }
+
+  /* Phone Mockup mit Slider */
+  .phone-wrap {
+    position: relative;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .phone {
+    width: 240px;
+    background: #2a2520;
+    border-radius: 36px;
+    padding: 10px;
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.6),
+      0 0 80px rgba(212,168,83,0.12);
+    flex-shrink: 0;
+  }
+  .phone-screen {
+    background: #1a1a1a;
+    border-radius: 28px;
+    overflow: hidden;
+    aspect-ratio: 9 / 18;
+    position: relative;
+  }
+  .phone-notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 70px; height: 20px;
+    background: #14110d;
+    border-radius: 0 0 14px 14px;
+    z-index: 5;
+  }
+
+  /* Slider */
+  .slides {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease;
+  }
+  .slide {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+  /* Vollbild-Slide für Screenshots wie das Menü */
+  .slide-full {
+    padding: 0;
+    background: #14110d;
+  }
+  .slide-full img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .slide-gong {
+    position: relative;
+    z-index: 2;
+    height: 38%;
+    width: auto;
+    margin-top: 22px;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
+  }
+  .slide-timer {
+    position: relative;
+    z-index: 2;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 700;
+    font-size: 38px;
+    color: #fff;
+    margin-top: 18px;
+    letter-spacing: 0.05em;
+    text-shadow: 0 2px 16px rgba(0,0,0,0.7);
+  }
+
+  /* Pfeile */
+  .arrow {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(212,168,83,0.3);
+    color: #d4a853;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+    font-family: inherit;
+    line-height: 1;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .arrow:hover { background: rgba(212,168,83,0.15); transform: scale(1.05); }
+  .arrow:active { transform: scale(0.95); }
+
+  /* Dots */
+  .dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 48px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(212,168,83,0.25);
+    transition: background 0.3s, transform 0.3s;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+  .dot.active {
+    background: #d4a853;
+    transform: scale(1.3);
+  }
+
+  .scroll-hint {
+    color: rgba(244,232,208,0.4);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 80px 24px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .section-title {
+    font-size: clamp(28px, 5vw, 40px);
+    color: #f4e8d0;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .section-sub {
+    text-align: center;
+    color: rgba(244,232,208,0.6);
+    font-size: 15px;
+    margin-bottom: 56px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Was ist Augenblick */
+  .features {
+    display: grid;
+    gap: 32px;
+  }
+  .feature {
+    text-align: center;
+    padding: 32px 20px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(212,168,83,0.15);
+    border-radius: 20px;
+  }
+  .feature-icon {
+    font-size: 32px;
+    margin-bottom: 14px;
+  }
+  .feature h3 {
+    font-size: 22px;
+    color: #d4a853;
+    margin-bottom: 8px;
+  }
+  .feature p {
+    color: rgba(244,232,208,0.7);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* DOWNLOAD */
+  .download {
+    background: rgba(212,168,83,0.04);
+    border-top: 1px solid rgba(212,168,83,0.15);
+    border-bottom: 1px solid rgba(212,168,83,0.15);
+    max-width: none;
+    padding: 80px 24px;
+  }
+  .download-inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .platforms {
+    display: grid;
+    gap: 24px;
+    margin-top: 40px;
+  }
+  .platform {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(212,168,83,0.2);
+    border-radius: 20px;
+    padding: 32px 28px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .platform:hover {
+    border-color: rgba(212,168,83,0.4);
+    background: rgba(255,255,255,0.04);
+  }
+  .platform-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .platform-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: rgba(212,168,83,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .platform-name {
+    font-size: 20px;
+    color: #f4e8d0;
+    font-weight: 500;
+  }
+  .platform p {
+    color: rgba(244,232,208,0.7);
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.7;
+  }
+  .btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #d4a853, #b47832);
+    color: #1a1a1a;
+    padding: 14px 28px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(212,168,83,0.25);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(212,168,83,0.35); }
+
+  .install-steps {
+    margin-top: 16px;
+    padding-left: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  .install-steps li {
+    counter-increment: step;
+    padding: 8px 0 8px 36px;
+    position: relative;
+    font-size: 14px;
+    color: rgba(244,232,208,0.8);
+    line-height: 1.6;
+  }
+  .install-steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 8px;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: rgba(212,168,83,0.2);
+    color: #d4a853;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 40px 24px;
+    font-size: 13px;
+    color: rgba(244,232,208,0.4);
+    border-top: 1px solid rgba(212,168,83,0.1);
+  }
+  footer a { color: rgba(212,168,83,0.7); text-decoration: none; }
+  footer a:hover { color: #d4a853; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <img src="gong_ohne_halter.png" alt="Gong" class="logo-mark">
+  <h1>Augenblick</h1>
+  <p class="hero-tag">Die Meditations-App für dein Handy</p>
+
+  <div class="phone-wrap">
+    <button class="arrow" id="arrow-prev" aria-label="Vorherige Ansicht">‹</button>
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="slides" id="slides">
+          <div class="slide">
+            <img class="slide-bg" src="background.jpg" alt="">
+            <img class="slide-gong" src="gong.png" alt="">
+            <div class="slide-timer">30:00</div>
+          </div>
+          <div class="slide" style="background:#000">
+            <img class="slide-gong" src="gong_ohne_halter.png" alt="">
+            <div class="slide-timer">30:00</div>
+          </div>
+          <div class="slide" style="background:#0a1828">
+            <img class="slide-gong" src="gong_ohne_halter.png" alt="">
+            <div class="slide-timer">30:00</div>
+          </div>
+          <div class="slide" style="background:#246e1c">
+            <img class="slide-gong" src="gong_ohne_halter.png" alt="">
+            <div class="slide-timer">30:00</div>
+          </div>
+          <div class="slide" style="background:#c8a400">
+            <img class="slide-gong" src="gong_ohne_halter.png" alt="">
+            <div class="slide-timer">30:00</div>
+          </div>
+          <div class="slide slide-full">
+            <img src="screen-menu.png" alt="Menü mit Klangschalen, Abdunkelung und Hintergrundfarben">
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="arrow" id="arrow-next" aria-label="Nächste Ansicht">›</button>
+  </div>
+
+  <div class="dots" id="dots"></div>
+
+  <div class="scroll-hint">↓ Weiter lesen</div>
+</header>
+
+<!-- Was ist Augenblick -->
+<section>
+  <h2 class="section-title">Ein Werkzeug, mehr nicht</h2>
+  <p class="section-sub">Augenblick: Zeit für dich.</p>
+
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">🔔</div>
+      <h3>Klangschale statt Lärm</h3>
+      <p>Drei Klangschalen zur Auswahl. Die gewählte klingt am Anfang und am Ende deiner Meditation. Dazwischen Stille. Du kannst auch einen eigenen MP3-Sound hinzufügen, wenn du möchtest.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🌸</div>
+      <h3>Hintergrund nach deiner Stimmung</h3>
+      <p>Klassisch mit Buddha-Bild und Kerze. Oder schlicht einfarbig in sieben Tönen, von Schwarz bis Warmes Gelb. Wechsle wann du möchtest.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🌙</div>
+      <h3>Bildschirm dunkel statt grell</h3>
+      <p>Auf Wunsch dunkelt sich der Bildschirm von selbst ab, damit dich kein Licht stört. Einmal antippen, dann ist er wieder hell.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⏱️</div>
+      <h3>Zwischen-Gong</h3>
+      <p>Wenn du möchtest, klingt mitten in der Meditation ein zweiter Gong. Du wählst den Zeitpunkt selbst – eine sanfte Markierung in der Stille.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🎁</div>
+      <h3>Kostenlos und still</h3>
+      <p>Keine Werbung, kein Abo, kein Konto. Keine Datensammlung. Funktioniert offline, ohne Internet.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Download -->
+<section class="download">
+  <div class="download-inner">
+    <h2 class="section-title">App auf dein Handy holen</h2>
+    <p class="section-sub">Wähle dein Gerät. Die Installation dauert eine Minute.</p>
+
+    <div class="platforms">
+      <!-- Android -->
+      <div class="platform">
+        <div class="platform-head">
+          <div class="platform-icon">🤖</div>
+          <div class="platform-name">Android</div>
+        </div>
+        <p>Lade die APK herunter und installiere sie. Beim ersten Mal musst du „Installation aus unbekannten Quellen" einmalig erlauben.</p>
+        <a class="btn" href="https://github.com/Boris1900/Meditation-App/releases/latest/download/Augenblick-v1.57.apk" id="apk-btn">⬇ APK herunterladen</a>
+        <ol class="install-steps">
+          <li>Die APK wird in deinen Downloads-Ordner gelegt.</li>
+          <li>Tippe auf die Datei, um sie zu öffnen.</li>
+          <li>Bei der ersten Installation: Hinweis bestätigen und installieren.</li>
+        </ol>
+      </div>
+
+      <!-- iPhone -->
+      <div class="platform">
+        <div class="platform-head">
+          <div class="platform-icon">🍎</div>
+          <div class="platform-name">iPhone</div>
+        </div>
+        <p>iPhones haben keinen klassischen App-Download. Augenblick wird stattdessen über Safari zum Home-Bildschirm hinzugefügt – funktioniert genauso wie eine richtige App.</p>
+        <a class="btn" href="https://boris1900.github.io/Meditation-App/" id="ios-btn">📱 In Safari öffnen</a>
+        <ol class="install-steps">
+          <li>Öffne den Button oben in <strong>Safari</strong> (wichtig: nicht in Chrome oder Firefox).</li>
+          <li>Tippe unten auf das <strong>Teilen-Symbol</strong> (Quadrat mit Pfeil nach oben).</li>
+          <li>Wähle <strong>„Zum Home-Bildschirm"</strong>. Fertig.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>Gemacht für den Augenblick von Boris Seedorf · <a href="https://www.tinnituspraxis-seedorf.de">tinnituspraxis-seedorf.de</a></p>
+</footer>
+
+<script>
+  // APK-Link automatisch auf neueste Version aus GitHub-Release setzen.
+  // Fällt der API-Aufruf aus (Rate-Limit o.ä.), bleibt der hardgecodete Link aus dem HTML.
+  fetch('https://api.github.com/repos/Boris1900/Meditation-App/releases/latest')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data) return;
+      const apk = (data.assets || []).find(a => a.name.startsWith('Augenblick-') && a.name.endsWith('.apk'));
+      if (apk) {
+        const btn = document.getElementById('apk-btn');
+        btn.href = apk.browser_download_url;
+        btn.textContent = '⬇ APK herunterladen (' + data.tag_name + ')';
+      }
+    })
+    .catch(() => {});
+
+  const slidesEl = document.getElementById('slides');
+  const totalSlides = slidesEl.children.length;
+  const dotsEl = document.getElementById('dots');
+  let current = 0;
+
+  // Dots erzeugen
+  for (let i = 0; i < totalSlides; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Zur Ansicht ' + (i + 1));
+    dot.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(dot);
+  }
+
+  function goTo(i) {
+    current = (i + totalSlides) % totalSlides;
+    slidesEl.style.transform = `translateX(-${current * 100}%)`;
+    dotsEl.querySelectorAll('.dot').forEach((d, idx) => {
+      d.classList.toggle('active', idx === current);
+    });
+  }
+
+  document.getElementById('arrow-prev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('arrow-next').addEventListener('click', () => goTo(current + 1));
+
+  // Touch-Swipe auf Phone-Screen
+  let touchStartX = 0;
+  const screen = document.querySelector('.phone-screen');
+  screen.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  screen.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) goTo(current + (dx < 0 ? 1 : -1));
+  });
+</script>
+
+</body>
+</html>
