@@ -4,7 +4,7 @@
 Statische Landingpage für die Augenblick-Meditations-App.
 Single-File-HTML, kein Build-Schritt, kein Framework.
 
-**Geplante Live-URL:** https://augenblick.tinnituspraxis-seedorf.de
+**Live-URL:** https://augenblick.tinnituspraxis-seedorf.de
 **App-Repo (verlinkt):** https://github.com/Boris1900/Meditation-App
 **Praxis-Hauptseite:** https://www.tinnituspraxis-seedorf.de
 
@@ -12,10 +12,13 @@ Single-File-HTML, kein Build-Schritt, kein Framework.
 ```
 AugenblickLanding/
 ├── index.html             # komplette Landingpage
-├── gong.png               # Gong mit Halterung (Buddha-Modus)
-├── gong_ohne_halter.png   # Gong ohne Halterung (Farbmodus) + Logo im Hero
-├── background.jpg         # Buddha-Hintergrund (für ersten Slide)
-├── screen-menu.png        # Screenshot des App-Menüs (letzter Slide)
+├── gong.webp              # Gong mit Halterung – optimiert (war: 2,8 MB → 113 KB)
+├── gong_ohne_halter.webp  # Gong ohne Halterung – optimiert (war: 1,4 MB → 89 KB)
+├── gong.png               # Original, nur als Backup behalten
+├── gong_ohne_halter.png   # Original, nur als Backup behalten
+├── background.jpg         # Buddha-Hintergrund (203 KB, schon OK)
+├── screen-menu.png        # Screenshot des App-Menüs (103 KB, schon OK)
+├── optimize-images.mjs    # Node-Script für WebP-Konvertierung (einmalig genutzt)
 ├── CNAME                  # Subdomain für GitHub Pages
 └── CLAUDE.md              # Diese Datei
 ```
@@ -45,13 +48,14 @@ Name mit `Augenblick-` beginnt und auf `.apk` endet. Wenn das Naming geändert
 wird, muss die Suchlogik in `index.html` angepasst werden.
 
 ## iPhone-Installation
-Aktuell verlinkt der iPhone-Button auf `https://boris1900.github.io/Meditation-App/`,
+Der iPhone-Button verlinkt auf `https://boris1900.github.io/Meditation-App/`,
 wo die PWA gehostet wird. Nutzer öffnen das in Safari → Teilen → "Zum Home-Bildschirm".
 
 ## Deployment
 - GitHub Pages serviert direkt aus dem `main`-Branch
 - Subdomain bei All-Inkl. per CNAME-Eintrag auf `boris1900.github.io`
-- CNAME-Datei im Repo teilt GitHub mit, für welche Domain die Seite ausgeliefert werden soll
+- CNAME-Datei im Repo teilt GitHub mit, für welche Domain die Seite ausgeliefert wird
+- HTTPS enforced (via GitHub API aktiviert, da UI-Checkbox inaktiv war)
 
 ## Arbeitsregel
 **Immer erst fragen bevor größere Änderungen umgesetzt werden.**
